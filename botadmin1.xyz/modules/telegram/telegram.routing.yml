@@ -1,0 +1,19 @@
+config_post.form:
+  path: '/config_post'
+  defaults:
+    _title: 'Config Post.'
+    # Подгружаем форму по неймспейсу.
+    _form: '\Drupal\telegram\Form\ConfigTelegramPost'
+  requirements:
+    _permission: 'access content'    
+  configure: collect_telegram_post.admin_settings
+
+
+config_telegram_post.admin_settings:
+  path: '/admin/config/telegram'
+  defaults:
+    _title: 'Config Telegram post - Form API.'
+    # Подгружаем форму по неймспейсу.
+    _form: '\Drupal\telegram\Form\ConfigModule'
+  requirements:
+    _permission: 'administer site configuration'

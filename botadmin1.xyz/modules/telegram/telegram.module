@@ -1,0 +1,77 @@
+<?php
+
+/**
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * @param $form
+ * Implements hook_form_FORM_ID_alter()
+ */
+ global $chat_id;
+ global $token;
+function telegram_form_node_telegramarticle_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id){
+  $form['actions']['submit']['#submit'][] = '_telegram_form_submit';    
+}
+
+function telegram_form_config_post_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id)
+{
+  $form['chat_id']['#description'] = t('Start code.');    
+  $form['token']['#description'] = t('Start code: code.'); 
+  $form['actions']['submit']['#submit'][] = '_config_form_submit';    
+
+}
+function _config_form_submit(&$form, \Drupal\Core\Form\FormStateInterface $form_state)
+{
+}
+/**
+ * @param $form
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ * Callback telegram_notification
+ */
+function _telegram_form_submit(&$form, \Drupal\Core\Form\FormStateInterface $form_state){
+
+  # Telegram data
+  $telegram_token = 'bot768752302:AAGElCtzKJZti1j0LNIANz0IkBgGQy07wfA'; // Ваш токен, который строится по шаблону bot+token
+  $telegram_id_chat = '-1001217341429';  // ID чата
+	
+  if(!empty($telegram_token) && !empty($telegram_id_chat))
+  {
+	global $user;
+   
+    # Form data
+    $data = $form_state->getValues();
+    
+	if($data['field_telegram']['value']==1)
+	{
+		$term = Drupal\taxonomy\Entity\Term::load($data['field_tag'][0]['target_id']);
+		$fid = $data['field_img'][0]['fids'][0];
+		
+		$text=$data['body'][0]['value'];
+		$str = str_replace(array('<p>','</p>'),'',$text);
+		
+		drupal_set_message($data['field_telegram']['value']);
+		if($user->uid == '1') 
+		{
+			drupal_set_message('NEAchtung');
+		}
+		# Send message
+		$message = "<b>Zagolovok: </b>".$data['title'][0]['value']."%0A<b>Tag: %23</b>".$term->getName()."%0A<b>Text: </b>".$str."%0A<b>Image: </b>";
+		#$message = "poyf";
+		$mes = "https://api.telegram.org/".$telegram_token."/sendMessage?chat_id=".$telegram_id_chat."&parse_mode=html&text=".$message;
+		
+		$send_message = file_get_contents($mes);
+		if($send_message)
+		{
+			drupal_set_message('Сообщение успешно отправлено в Telegram '.$chat_id);
+		}
+		else
+		{
+			drupal_set_message('Сообщение не отправлено в Telegram ', 'error');
+		}/**/
+	}	
+  }
+  else
+  {
+    drupal_set_message('Сообщение не возможно отправить, отсутсвует token или id_chat', 'error');
+  }
+
+}

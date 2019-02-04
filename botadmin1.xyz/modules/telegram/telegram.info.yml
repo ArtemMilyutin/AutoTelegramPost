@@ -1,0 +1,5 @@
+name: Telegram Post
+description: Пост в чат Telegram
+core: 8.x
+type: module
+configure: config_telegram_post.admin_settings
